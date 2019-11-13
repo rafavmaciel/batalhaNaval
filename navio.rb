@@ -1,12 +1,7 @@
 # frozen_string_literal: true
 
 class Navio
-  @tamanho
-  @posicao
-  @posicoes
-  @segmentos_destruidos
-  @horizontal
-
+  attr_accessor :tamanho, :posicao, :posicoes, :segmentos_destruidos, :horizontal
   def initialize(tamanho, posicao, horizontal)
     raise 'Argumento tamanho eh invalido!' if tamanho < 1
 
