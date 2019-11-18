@@ -11,13 +11,13 @@ class Navio
     @segmentos_destruidos = Array.new(@tamanho, false)
     @posicoes = Array.new(@tamanho)
     @posicoes[0] = posicao
-    if horizontal == true
+    if horizontal
       (1...@tamanho).each do |n|
-        @posicoes[n] = [posicao[0] + n, posicao[1]]
+        @posicoes[n] = [posicao[0], posicao[1] + n]
       end
     else
       (1...@tamanho).each do |n|
-        @posicoes[n] = [posicao[0], posicao[1] + n]
+        @posicoes[n] = [posicao[0] + n, posicao[1]]
       end
     end
   end

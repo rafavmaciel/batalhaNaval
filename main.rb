@@ -5,16 +5,14 @@ require './tabuleiro'
 
 class Tutorial < Gosu::Window
   def initialize
-    super 800,800
+    super 800, 800
     self.caption = 'Tutorial Game'
-    @tabuleiro = Tabuleiro.new(self, '1')
-    @tabuleiro2 = Tabuleiro.new(self, '1')
-    @atirar = false
+    @tabuleiro = Tabuleiro.new
+    @tabuleiro2 = Tabuleiro.new
     @posicionar_navio = true
   end
 
-  def update
-  end
+  def update; end
 
   def button_down(id)
     if id == Gosu::MsLeft
@@ -22,8 +20,6 @@ class Tutorial < Gosu::Window
         @tabuleiro.atirar(self, mouse_x, mouse_y)
       elsif @posicionar_navio
         @tabuleiro.posicionar(self, mouse_x, mouse_y)
-        @atirar = true
-        @posicionar_navio = false
       end
     end
   end
