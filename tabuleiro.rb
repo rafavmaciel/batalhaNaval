@@ -8,9 +8,9 @@ class Tabuleiro
     @x0 = 146
     @y0 = 226
     @matriz = Array.new(10) { Array.new(10, 0) }
-    @largura_imagem = 40
-    @altura_imagem = 40
-    @navios = [Navio.new(6), Navio.new(4), Navio.new(3), Navio.new(3), Navio.new(1)]
+    @largura_imagem = @altura_imagem = 40
+    @navios = [Navio.new(6), Navio.new(4), Navio.new(3), Navio.new(3),
+               Navio.new(1)]
     @navios_posicionados = 0
     @imagem = Gosu::Image.new('imagens/tabuleiro-1.png')
     @tiro_na_agua = Gosu::Image.new('imagens/errou.png')
@@ -39,6 +39,7 @@ class Tabuleiro
           desenhe_tiro_no_mar(linha, coluna)
         when 3
           desenhe_navio(window, linha, coluna)
+          desenhse_tiro_no_navio(linha, coluna)
         end
       end
     end
@@ -61,7 +62,7 @@ class Tabuleiro
       puts 'pey'
       linha = (mouse_y - @y0) / @altura_imagem
       coluna = (mouse_x - @x0) / @largura_imagem
-      @matriz[linha][coluna] = 1 if @matriz[linha][coluna] == 0
+      @matriz[linha][coluna] = 1 if @matriz[linha][coluna].zero?
       @matriz[linha][coluna] = 3 if @matriz[linha][coluna] == 2
     end
   end
@@ -79,7 +80,7 @@ class Tabuleiro
   def posicao_valida_para_atirar(mouse_x, mouse_y)
     linha = (mouse_y - @y0) / @altura_imagem
     coluna = (mouse_x - @x0) / @largura_imagem
-    (@matriz[linha][coluna] == 0) || (@matriz[linha][coluna] == 2)
+    @matriz[linha][coluna].zero? || (@matriz[linha][coluna] == 2)
   end
 
   def posicionar(_window, mouse_x, mouse_y)
@@ -103,6 +104,10 @@ class Tabuleiro
 
   def desenhe_tiro_no_mar(linha, coluna)
     @tiro_na_agua.draw(coluna * @altura_imagem + @x0, linha * @largura_imagem + @y0, 0)
+  end
+
+  def desenhse_tiro_no_navio(linha, coluna)
+    @tiro_no_navio.draw(coluna * @altura_imagem + @x0, linha * @largura_imagem + @y0, 0)
   end
 
   def terminou_de_posicionar
