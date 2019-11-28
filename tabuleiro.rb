@@ -79,7 +79,7 @@ class Tabuleiro
   def posicao_valida_para_atirar(mouse_x, mouse_y)
     linha = (mouse_y - @y0) / @altura_imagem
     coluna = (mouse_x - @x0) / @largura_imagem
-    @matriz[linha][coluna] == 0 or @matriz[linha][coluna] == 2
+    (@matriz[linha][coluna] == 0) || (@matriz[linha][coluna] == 2)
   end
 
   def posicionar(_window, mouse_x, mouse_y)

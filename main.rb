@@ -12,8 +12,7 @@ class Tutorial < Gosu::Window
     @posicionar_navio = true
   end
 
-  def update;
-  end
+  def update; end
 
   def button_down(id)
     if id == Gosu::MsLeft
