@@ -2,10 +2,11 @@
 
 class Navio
   attr_accessor :tamanho, :posicao, :posicoes, :segmentos_destruidos, :horizontal
-  def initialize(tamanho, posicao, horizontal)
-    raise 'Argumento tamanho eh invalido!' if tamanho < 1
-
+  def initialize(tamanho)
     @tamanho = tamanho
+  end
+
+  def posicionar(posicao, horizontal)
     @posicao = posicao
     @horizontal = horizontal
     @segmentos_destruidos = Array.new(@tamanho, false)

@@ -7,19 +7,24 @@ class Tutorial < Gosu::Window
   def initialize
     super 800, 800
     self.caption = 'Tutorial Game'
-    @tabuleiro = Tabuleiro.new
+    @tabuleiro1 = Tabuleiro.new
     @tabuleiro2 = Tabuleiro.new
     @posicionar_navio = true
   end
 
-  def update; end
+  def update;
+  end
 
   def button_down(id)
     if id == Gosu::MsLeft
       if @atirar
-        @tabuleiro.atirar(self, mouse_x, mouse_y)
+        @tabuleiro1.atirar(self, mouse_x, mouse_y)
       elsif @posicionar_navio
-        @tabuleiro.posicionar(self, mouse_x, mouse_y)
+        @tabuleiro1.posicionar(self, mouse_x, mouse_y)
+        if @tabuleiro1.terminou_de_posicionar
+          @posicionar_navio = false
+          @atirar = true
+        end
       end
     end
   end
@@ -29,7 +34,7 @@ class Tutorial < Gosu::Window
   end
 
   def draw
-    @tabuleiro.show_mapa(self)
+    @tabuleiro1.show_mapa(self)
   end
 end
 
