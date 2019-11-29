@@ -16,6 +16,7 @@ class Tabuleiro
     @tiro_na_agua = Gosu::Image.new('imagens/errou.png')
     @tiro_no_navio = Gosu::Image.new('imagens/acertou.png')
     @mostrar_navios = true
+    @errou = false
   end
 
   def show_para_posicionar(window)
@@ -39,10 +40,16 @@ class Tabuleiro
           desenhe_tiro_no_mar(linha, coluna)
         when 3
           desenhe_navio(window, linha, coluna)
-          desenhse_tiro_no_navio(linha, coluna)
+          desenhe_tiro_no_navio(linha, coluna)
+        when 4
+          desenhe_navio_destruido(window, linha, coluna)
         end
       end
     end
+  end
+
+  def errou_o_tiro?
+    @errou
   end
 
   def show_mapa(window)
@@ -58,18 +65,41 @@ class Tabuleiro
   end
 
   def atirar(_window, mouse_x, mouse_y)
+    @errou = true
     if clicou_no_tabuleiro(mouse_x, mouse_y) && posicao_valida_para_atirar(mouse_x, mouse_y)
-      puts 'pey'
-      linha = (mouse_y - @y0) / @altura_imagem
-      coluna = (mouse_x - @x0) / @largura_imagem
-      @matriz[linha][coluna] = 1 if @matriz[linha][coluna].zero?
-      @matriz[linha][coluna] = 3 if @matriz[linha][coluna] == 2
+      linha = pegar_linha(mouse_y)
+      coluna = pegar_coluna(mouse_x)
+      @navios.each do |navio|
+        if navio.destruir_segmento(linha, coluna)
+          @matriz[linha][coluna] = 3 if @matriz[linha][coluna] == 2
+          @errou = false
+        else
+          @matriz[linha][coluna] = 1 if @matriz[linha][coluna].zero?
+        end
+
+        next unless navio.esta_destruido?
+
+        navio.posicoes.each do |posicao|
+          @matriz[posicao[0]][posicao[1]] = 4
+        end
+        perdeu?
+      end
+    else
+      @errou = false
     end
   end
 
+  def perdeu?
+    perdeu = true
+    @navios.each do |navio|
+      perdeu = false unless navio.esta_destruido?
+    end
+    puts 'perdeu' if perdeu
+  end
+
   def posicao_valida_para_posicionar(mouse_x, mouse_y, navio)
-    linha = (mouse_y - @y0) / @altura_imagem
-    coluna = (mouse_x - @x0) / @largura_imagem
+    linha = pegar_linha(mouse_y)
+    coluna = pegar_coluna(mouse_x)
     (0..(navio.tamanho - 1)).each do |k|
       if coluna.to_i + k > @matriz.size || @matriz[linha][coluna + k] != 0
         return false
@@ -78,15 +108,15 @@ class Tabuleiro
   end
 
   def posicao_valida_para_atirar(mouse_x, mouse_y)
-    linha = (mouse_y - @y0) / @altura_imagem
-    coluna = (mouse_x - @x0) / @largura_imagem
+    linha = pegar_linha(mouse_y)
+    coluna = pegar_coluna(mouse_x)
     @matriz[linha][coluna].zero? || (@matriz[linha][coluna] == 2)
   end
 
   def posicionar(_window, mouse_x, mouse_y)
     if clicou_no_tabuleiro(mouse_x, mouse_y) && posicao_valida_para_posicionar(mouse_x, mouse_y, @navios[@navios_posicionados])
-      linha = (mouse_y - @y0) / @altura_imagem
-      coluna = (mouse_x - @x0) / @largura_imagem
+      linha = pegar_linha(mouse_y)
+      coluna = pegar_coluna(mouse_x)
       navio = @navios[@navios_posicionados]
       @navios_posicionados += 1
       navio.posicionar([linha, coluna], true)
@@ -95,6 +125,14 @@ class Tabuleiro
         @mostrar_navios = false if terminou_de_posicionar
       end
     end
+  end
+
+  def pegar_linha(mouse_y)
+    ((mouse_y - @y0) / @altura_imagem).to_i
+  end
+
+  def pegar_coluna(mouse_x)
+    ((mouse_x - @x0) / @largura_imagem).to_i
   end
 
   def desenhe_navio(window, linha, coluna)
@@ -106,8 +144,13 @@ class Tabuleiro
     @tiro_na_agua.draw(coluna * @altura_imagem + @x0, linha * @largura_imagem + @y0, 0)
   end
 
-  def desenhse_tiro_no_navio(linha, coluna)
+  def desenhe_tiro_no_navio(linha, coluna)
     @tiro_no_navio.draw(coluna * @altura_imagem + @x0, linha * @largura_imagem + @y0, 0)
+  end
+
+  def desenhe_navio_destruido(window, linha, coluna)
+    color = Gosu::Color::RED
+    window.draw_rect(coluna * @altura_imagem + @x0, linha * @largura_imagem + @y0, @largura_imagem, @altura_imagem, color)
   end
 
   def terminou_de_posicionar

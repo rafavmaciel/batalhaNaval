@@ -22,4 +22,21 @@ class Navio
       end
     end
   end
+
+  def destruir_segmento(linha, coluna)
+    destruiu = false
+    if @posicoes.include?([linha, coluna])
+      destruiu = true
+      if @horizontal
+        @segmentos_destruidos[@posicao[1] - coluna] = true
+      else
+        @segmentos_destruidos[@posicao[0] - linha] = true
+      end
+    end
+    destruiu
+  end
+
+  def esta_destruido?
+    @segmentos_destruidos.all?
+  end
 end
