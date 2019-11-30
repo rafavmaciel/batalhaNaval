@@ -88,6 +88,7 @@ class Tabuleiro
     else
       @errou = false
     end
+    testar_direita(_window,linha, coluna)
   end
 
   def perdeu?
@@ -157,4 +158,43 @@ class Tabuleiro
   def terminou_de_posicionar
     @navios_posicionados == @navios.size
   end
-end
+
+  def testar_esquerda(_window,linha, coluna)
+   while (@errou ==false)
+      cordx = (coluna - 1) * @altura_imagem + @x0
+     puts cordx
+      cordy = linha * @altura_imagem + @y0
+     puts cordy
+     atirar(_window,cordx, cordy)
+   end
+  end
+  def testar_direita(_window,linha, coluna)
+    while (@errou ==false)
+      cordx = (coluna + 1) * @altura_imagem + @x0
+      puts cordx
+      cordy = linha * @altura_imagem + @y0
+      puts cordy
+      atirar(_window,cordx, cordy)
+    end
+  end
+  def testar_cima(_window,linha, coluna)
+    while (@errou ==false)
+      cordx = (coluna) * @altura_imagem + @x0
+      puts cordx
+      cordy = (linha + 1) * @altura_imagem + @y0
+      puts cordy
+      atirar(_window,cordx, cordy)
+    end
+  end
+
+  def testar_baixo(_window,linha, coluna)
+    while (@errou ==false)
+      cordx = (coluna) * @altura_imagem + @x0
+      puts cordx
+      cordy = (linha - 1) * @altura_imagem + @y0
+      puts cordy
+      atirar(_window,cordx, cordy)
+    end
+  end
+  end
+
