@@ -4,23 +4,24 @@ require 'gosu'
 require './navio'
 
 class Tabuleiro
-  def initialize
-    @x0 = 146
-    @y0 = 226
+  def initialize(posicao, numero)
+    @x0 = posicao[0] + 46
+    @y0 = posicao[1] + 126
     @matriz = Array.new(10) { Array.new(10, 0) }
     @largura_imagem = @altura_imagem = 40
     @navios = [Navio.new(6), Navio.new(4), Navio.new(3), Navio.new(3),
                Navio.new(1)]
     @navios_posicionados = 0
-    @imagem = Gosu::Image.new('imagens/tabuleiro-1.png')
+    @imagem = Gosu::Image.new("imagens/tabuleiro-#{numero}.png")
     @tiro_na_agua = Gosu::Image.new('imagens/errou.png')
     @tiro_no_navio = Gosu::Image.new('imagens/acertou.png')
     @mostrar_navios = true
     @errou = false
+    @posicao = posicao
   end
 
   def show_para_posicionar(window)
-    @imagem.draw(100, 100, 0)
+    @imagem.draw(@posicao[0], @posicao[1], 0)
     (0..9).each do |linha|
       (0..9).each do |coluna|
         case @matriz[linha][coluna]
@@ -32,7 +33,7 @@ class Tabuleiro
   end
 
   def show_para_atirar(window)
-    @imagem.draw(100, 100, 0)
+    @imagem.draw(@posicao[0], @posicao[1], 0)
     (0..9).each do |linha|
       (0..9).each do |coluna|
         case @matriz[linha][coluna]
@@ -94,7 +95,7 @@ class Tabuleiro
     @navios.each do |navio|
       perdeu = false unless navio.esta_destruido?
     end
-    puts 'perdeu' if perdeu
+    perdeu
   end
 
   def posicao_valida_para_posicionar(mouse_x, mouse_y, navio)
