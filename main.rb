@@ -44,11 +44,18 @@ class Tutorial < Gosu::Window
     end
   end
 
+  def mudar_orientacao
+    @horizontal = @horizontal ? false : true
+  end
+
   def button_down(id)
     if id == Gosu::MsLeft
       if @atirar
         atirar_no_tabuleiro
       elsif @posicionar_navio
+        if mouse_x.between?(900, 940) && mouse_y.between?(30, 70)
+          mudar_orientacao
+        end
         posicionar_navios
       end
     end
@@ -56,12 +63,12 @@ class Tutorial < Gosu::Window
 
   def posicionar_navios
     if @jogador_atual == 1
-      @tabuleiro1.posicionar(self, mouse_x, mouse_y)
+      @tabuleiro1.posicionar(self, mouse_x, mouse_y, @horizontal)
       if @tabuleiro1.terminou_de_posicionar
         @jogador_atual = 2
       end
     else
-      @tabuleiro2.posicionar(self, mouse_x, mouse_y)
+      @tabuleiro2.posicionar(self, mouse_x, mouse_y, @horizontal)
       if @tabuleiro2.terminou_de_posicionar
         @jogador_atual = 1
         @atirar = true
@@ -79,7 +86,12 @@ class Tutorial < Gosu::Window
     @tabuleiro2.show_mapa(self)
     @msg = "Jogador #{@jogador_atual} faça sua jogada" if @atirar
     @msg = "Jogador #{@jogador_atual} posicione os navios" if @posicionar_navio
-    @font.draw_text(@msg, 500, 50, 0)
+    @font.draw_text(@msg, 200, 50, 0)
+    if @posicionar_navio
+      @font.draw_text("Posicionar na horizontal?", 680, 50, 0)
+      color = @horizontal ? Gosu::Color::GREEN : Gosu::Color::RED
+      self.draw_rect(900, 30, 40, 40, color)
+    end
   end
 end
 

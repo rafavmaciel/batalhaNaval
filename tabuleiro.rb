@@ -101,14 +101,20 @@ class Tabuleiro
     perdeu
   end
 
-  def posicao_valida_para_posicionar(mouse_x, mouse_y, navio)
+  def posicao_valida_para_posicionar(mouse_x, mouse_y, navio, horizontal)
     linha = pegar_linha(mouse_y)
     coluna = pegar_coluna(mouse_x)
     (0..(navio.tamanho - 1)).each do |k|
-      if coluna.to_i + k > @matriz.size || @matriz[linha][coluna + k] != 0
+      puts "#{k}, #{linha}, #{coluna}, #{linha + k}, #{coluna + k}, #{@matriz.size}"
+      if horizontal
+        if coluna + k >= @matriz.size || @matriz[linha][coluna + k] != 0
+          return false
+        end
+      elsif linha + k >= @matriz.size || @matriz[linha + k][coluna] != 0
         return false
       end
     end
+    true
   end
 
   def posicao_valida_para_atirar(mouse_x, mouse_y)
@@ -117,13 +123,13 @@ class Tabuleiro
     @matriz[linha][coluna].zero? || (@matriz[linha][coluna] == 2)
   end
 
-  def posicionar(_window, mouse_x, mouse_y)
-    if clicou_no_tabuleiro(mouse_x, mouse_y) && posicao_valida_para_posicionar(mouse_x, mouse_y, @navios[@navios_posicionados])
+  def posicionar(_window, mouse_x, mouse_y, horizontal)
+    if clicou_no_tabuleiro(mouse_x, mouse_y) && posicao_valida_para_posicionar(mouse_x, mouse_y, @navios[@navios_posicionados], horizontal)
       linha = pegar_linha(mouse_y)
       coluna = pegar_coluna(mouse_x)
       navio = @navios[@navios_posicionados]
       @navios_posicionados += 1
-      navio.posicionar([linha, coluna], true)
+      navio.posicionar([linha, coluna], horizontal)
       navio.posicoes.each do |posicao|
         @matriz[posicao[0]][posicao[1]] = 2
         @mostrar_navios = false if terminou_de_posicionar
@@ -200,5 +206,6 @@ class Tabuleiro
       atirar(_window, cordx, cordy)
     end
   end
+
 end
 
