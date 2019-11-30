@@ -88,7 +88,9 @@ class Tabuleiro
     else
       @errou = false
     end
-    testar_direita(_window,linha, coluna)
+    if @machine
+      testar_direita(_window, linha, coluna)
+    end
   end
 
   def perdeu?
@@ -159,42 +161,44 @@ class Tabuleiro
     @navios_posicionados == @navios.size
   end
 
-  def testar_esquerda(_window,linha, coluna)
-   while (@errou ==false)
+  def testar_esquerda(_window, linha, coluna)
+    while (@errou == false)
       cordx = (coluna - 1) * @altura_imagem + @x0
-     puts cordx
+      puts cordx
       cordy = linha * @altura_imagem + @y0
-     puts cordy
-     atirar(_window,cordx, cordy)
-   end
+      puts cordy
+      atirar(_window, cordx, cordy)
+    end
   end
-  def testar_direita(_window,linha, coluna)
-    while (@errou ==false)
+
+  def testar_direita(_window, linha, coluna)
+    while (@errou == false)
       cordx = (coluna + 1) * @altura_imagem + @x0
       puts cordx
       cordy = linha * @altura_imagem + @y0
       puts cordy
-      atirar(_window,cordx, cordy)
+      atirar(_window, cordx, cordy)
     end
   end
-  def testar_cima(_window,linha, coluna)
-    while (@errou ==false)
+
+  def testar_cima(_window, linha, coluna)
+    while (@errou == false)
       cordx = (coluna) * @altura_imagem + @x0
       puts cordx
       cordy = (linha + 1) * @altura_imagem + @y0
       puts cordy
-      atirar(_window,cordx, cordy)
+      atirar(_window, cordx, cordy)
     end
   end
 
-  def testar_baixo(_window,linha, coluna)
-    while (@errou ==false)
+  def testar_baixo(_window, linha, coluna)
+    while (@errou == false)
       cordx = (coluna) * @altura_imagem + @x0
       puts cordx
       cordy = (linha - 1) * @altura_imagem + @y0
       puts cordy
-      atirar(_window,cordx, cordy)
+      atirar(_window, cordx, cordy)
     end
   end
-  end
+end
 
