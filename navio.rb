@@ -1,12 +1,35 @@
 # frozen_string_literal: true
 
 class Navio
-  attr_accessor :tamanho, :posicao, :posicoes, :segmentos_destruidos, :horizontal
+  attr_accessor :tamanho, :posicao, :posicoes, :segmentos_destruidos,
+                :horizontal, :imagens, :posicionado
+
   def initialize(tamanho)
     @tamanho = tamanho
+    @imagens = Array.new(tamanho)
+    carregar_imagens
+  end
+
+  def carregar_imagens
+    caminho = case @tamanho
+              when 6
+                'imagens/porta-avioes/'
+              when 4
+                'imagens/guerra/'
+              when 3
+                'imagens/encouracado/'
+              when 1
+                'imagens/submarino/'
+              else
+                ''
+              end
+    (0..@tamanho - 1).each do |k|
+      @imagens[k] = Gosu::Image.new(caminho + "#{k}.png")
+    end
   end
 
   def posicionar(posicao, horizontal)
+    @posicionado = true
     @posicao = posicao
     @horizontal = horizontal
     @segmentos_destruidos = Array.new(@tamanho, false)

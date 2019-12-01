@@ -20,30 +20,25 @@ class Tabuleiro
     @posicao = posicao
   end
 
-  def show_para_posicionar(window)
+  def show_para_posicionar(_window)
     @imagem.draw(@posicao[0], @posicao[1], 0)
-    (0..9).each do |linha|
-      (0..9).each do |coluna|
-        case @matriz[linha][coluna]
-        when 2
-          desenhe_navio(window, linha, coluna)
-        end
-      end
+    @navios.each do |navio|
+      desenhe_navio(navio) if navio.posicionado
     end
   end
 
-  def show_para_atirar(window)
+  def show_para_atirar(_window)
     @imagem.draw(@posicao[0], @posicao[1], 0)
+    @navios.each do |navio|
+      desenhe_navio_destruido(navio) if navio.esta_destruido?
+    end
     (0..9).each do |linha|
       (0..9).each do |coluna|
         case @matriz[linha][coluna]
         when 1
           desenhe_tiro_no_mar(linha, coluna)
         when 3
-          desenhe_navio(window, linha, coluna)
           desenhe_tiro_no_navio(linha, coluna)
-        when 4
-          desenhe_navio_destruido(window, linha, coluna)
         end
       end
     end
@@ -143,9 +138,16 @@ class Tabuleiro
     ((mouse_x - @x0) / @largura_imagem).to_i
   end
 
-  def desenhe_navio(window, linha, coluna)
-    color = Gosu::Color::YELLOW
-    window.draw_rect(coluna * @altura_imagem + @x0, linha * @largura_imagem + @y0, @largura_imagem, @altura_imagem, color)
+  def desenhe_navio(navio)
+    navio.imagens.each_with_index do |imagem, index|
+      y = navio.posicoes[index][0] * @altura_imagem + @y0
+      x = navio.posicoes[index][1] * @largura_imagem + @x0
+      if navio.horizontal
+        imagem.draw(x, y, 0)
+      else
+        imagem.draw_rot(x + 20, y + 20, 0, 90)
+      end
+    end
   end
 
   def desenhe_tiro_no_mar(linha, coluna)
@@ -153,12 +155,20 @@ class Tabuleiro
   end
 
   def desenhe_tiro_no_navio(linha, coluna)
-    @tiro_no_navio.draw(coluna * @altura_imagem + @x0, linha * @largura_imagem + @y0, 0)
+    @tiro_no_navio.draw(coluna * @altura_imagem + @x0, linha * @largura_imagem + @y0, 50)
   end
 
-  def desenhe_navio_destruido(window, linha, coluna)
-    color = Gosu::Color::RED
-    window.draw_rect(coluna * @altura_imagem + @x0, linha * @largura_imagem + @y0, @largura_imagem, @altura_imagem, color)
+  def desenhe_navio_destruido(navio)
+    navio.imagens.each_with_index do |imagem, index|
+      y = navio.posicoes[index][0] * @altura_imagem + @y0
+      x = navio.posicoes[index][1] * @largura_imagem + @x0
+      if navio.horizontal
+        imagem.draw(x, y, 0)
+      else
+        imagem.draw_rot(x + 20, y + 20, 0, 90)
+      end
+      desenhe_tiro_no_navio(navio.posicoes[index][0], navio.posicoes[index][1])
+    end
   end
 
   def terminou_de_posicionar
