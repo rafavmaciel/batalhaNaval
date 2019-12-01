@@ -2,6 +2,7 @@
 
 require 'gosu'
 require './tabuleiro'
+require './machine'
 
 class Tutorial < Gosu::Window
   def initialize
@@ -11,7 +12,9 @@ class Tutorial < Gosu::Window
     @tabuleiro2 = Tabuleiro.new([600, 100], '2')
     @intro = Gosu::Image.new('imagens/intro.png')
     @jogador_atual = 1
+    @machine = Machine.new
     @font = Gosu::Font.new 20
+    @selecionar_modo = true
   end
 
   def mudar_a_vez
@@ -76,7 +79,7 @@ class Tutorial < Gosu::Window
           mudar_orientacao
         end
         posicionar_navios
-      else
+      elsif @selecionar_modo
         selecionar_modo_de_jogo
       end
     elsif id == Gosu::KB_ESCAPE
@@ -87,21 +90,27 @@ class Tutorial < Gosu::Window
   def posicionar_navios
     if @jogador_atual == 1
       @tabuleiro1.posicionar(self, mouse_x, mouse_y, @horizontal)
-      @jogador_atual = 2 if @tabuleiro1.terminou_de_posicionar
+      mudar_a_vez if @tabuleiro1.terminou_de_posicionar
     elsif @modo_de_jogo == 'X1'
       @tabuleiro2.posicionar(self, mouse_x, mouse_y, @horizontal)
       if @tabuleiro2.terminou_de_posicionar
-        @jogador_atual = 1
+        mudar_a_vez
         @atirar = true
         @posicionar_navio = false
       end
-    elsif @modo_de_jogo == 'maquina'
-      # posiciona automaticamente
     end
   end
 
   def needs_cursor?
     true
+  end
+
+  def posicionar_automaticamente
+    @machine.posicionar(self, @tabuleiro2)
+    @tabuleiro1.mostrar_navios = true
+    @atirar = true
+    @posicionar_navio = false
+    mudar_a_vez
   end
 
   def draw
@@ -111,13 +120,14 @@ class Tutorial < Gosu::Window
       @msg = "Jogador #{@jogador_atual} faça sua jogada" if @atirar
       if @posicionar_navio
         @msg = "Jogador #{@jogador_atual} posicione os navios"
-      end
-      @font.draw_text(@msg, 200, 50, 0)
-      if @posicionar_navio
         @font.draw_text('Posicionar na horizontal?', 680, 50, 0)
         color = @horizontal ? Gosu::Color::GREEN : Gosu::Color::RED
         draw_rect(900, 30, 40, 40, color)
+        if @modo_de_jogo == 'maquina' && @jogador_atual == 3
+          posicionar_automaticamente
+        end
       end
+      @font.draw_text(@msg, 200, 50, 0)
     else
       @intro.draw(0, 0, 0)
     end

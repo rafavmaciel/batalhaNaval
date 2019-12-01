@@ -4,6 +4,9 @@ require 'gosu'
 require './navio'
 
 class Tabuleiro
+  attr_accessor :mostrar_navios
+  attr_reader :x0, :y0, :largura_imagem, :altura_imagem, :matriz
+
   def initialize(posicao, numero)
     @x0 = posicao[0] + 46
     @y0 = posicao[1] + 126
@@ -30,7 +33,7 @@ class Tabuleiro
   def show_para_atirar(_window)
     @imagem.draw(@posicao[0], @posicao[1], 0)
     @navios.each do |navio|
-      desenhe_navio_destruido(navio) if navio.esta_destruido?
+      desenhe_navio_destruido(navio) if navio.posicionado && navio.esta_destruido?
     end
     (0..9).each do |linha|
       (0..9).each do |coluna|
@@ -49,10 +52,9 @@ class Tabuleiro
   end
 
   def show_mapa(window)
+    show_para_atirar(window)
     if @mostrar_navios
       show_para_posicionar(window)
-    else
-      show_para_atirar(window)
     end
   end
 
