@@ -33,7 +33,9 @@ class Tabuleiro
   def show_para_atirar(_window)
     @imagem.draw(@posicao[0], @posicao[1], 0)
     @navios.each do |navio|
-      desenhe_navio_destruido(navio) if navio.posicionado && navio.esta_destruido?
+      if navio.posicionado && navio.esta_destruido?
+        desenhe_navio_destruido(navio)
+      end
     end
     (0..9).each do |linha|
       (0..9).each do |coluna|
@@ -53,9 +55,7 @@ class Tabuleiro
 
   def show_mapa(window)
     show_para_atirar(window)
-    if @mostrar_navios
-      show_para_posicionar(window)
-    end
+    show_para_posicionar(window) if @mostrar_navios
   end
 
   def clicou_no_tabuleiro(mouse_x, mouse_y)

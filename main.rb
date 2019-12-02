@@ -129,7 +129,7 @@ class Tutorial < Gosu::Window
         if @modo_de_jogo == 'maquina' && @jogador_atual == 3
           posicionar_automaticamente
         end
-      elsif @atirar and @jogador_atual == 3
+      elsif @atirar && (@jogador_atual == 3)
         atirar_automaticamente
       end
       @font.draw_text(@msg, 200, 50, 0)

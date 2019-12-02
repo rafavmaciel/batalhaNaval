@@ -1,17 +1,16 @@
 # frozen_string_literal: true
 
 class Machine
-
   def initialize(window, tabuleiro)
     @window = window
     @tabuleiro = tabuleiro
     @destruidos = 0
-    @direcoes_nao_testadas = ['esquerda', 'direita', 'cima', 'baixo']
+    @direcoes_nao_testadas = %w[esquerda direita cima baixo]
     @destruiu_ultimo_navio_que_acertou = true
   end
 
   def posicionar
-    while not @tabuleiro.terminou_de_posicionar
+    until @tabuleiro.terminou_de_posicionar
       x = rand(@tabuleiro.matriz.size * @tabuleiro.largura_imagem) + @tabuleiro.x0
       y = rand(@tabuleiro.matriz.size * @tabuleiro.altura_imagem) + @tabuleiro.y0
       @tabuleiro.posicionar(x, y, [true, false].sample)
@@ -31,16 +30,15 @@ class Machine
   end
 
   def atualizar_direcoes
-    @direcoes_nao_testadas = ['esquerda', 'direita', 'cima', 'baixo']
+    @direcoes_nao_testadas = %w[esquerda direita cima baixo]
   end
 
   def atirar
-    if @destruidos == 5
-      return
-    end
+    return if @destruidos == 5
+
     if @destruiu_ultimo_navio_que_acertou
       posicao = atirar_aleatoriamente
-      if not @tabuleiro.errou_o_tiro?
+      if !@tabuleiro.errou_o_tiro?
         atirar
       elsif @tabuleiro.acertou
         @linha = posicao[0]
@@ -107,44 +105,44 @@ class Machine
   end
 
   def testar_esquerda(linha, coluna)
-    unless @tabuleiro.errou_o_tiro? or mudou_a_quantidade_de_navios_destruidos?
+    unless @tabuleiro.errou_o_tiro? || mudou_a_quantidade_de_navios_destruidos?
       @tabuleiro.atirar_usando_linha_coluna(linha, coluna)
       testar_esquerda(linha, coluna - 1)
     end
-    if not @tabuleiro.acertou and not @tabuleiro.errou_o_tiro?
+    if !@tabuleiro.acertou && !@tabuleiro.errou_o_tiro?
       @direcoes_nao_testadas.delete('esquerda')
       atirar
     end
   end
 
   def testar_direita(linha, coluna)
-    unless @tabuleiro.errou_o_tiro? or mudou_a_quantidade_de_navios_destruidos?
+    unless @tabuleiro.errou_o_tiro? || mudou_a_quantidade_de_navios_destruidos?
       @tabuleiro.atirar_usando_linha_coluna(linha, coluna)
       testar_direita(linha, coluna + 1)
     end
-    if not @tabuleiro.acertou and not @tabuleiro.errou_o_tiro?
+    if !@tabuleiro.acertou && !@tabuleiro.errou_o_tiro?
       @direcoes_nao_testadas.delete('direita')
       atirar
     end
   end
 
   def testar_cima(linha, coluna)
-    unless @tabuleiro.errou_o_tiro? or mudou_a_quantidade_de_navios_destruidos?
+    unless @tabuleiro.errou_o_tiro? || mudou_a_quantidade_de_navios_destruidos?
       @tabuleiro.atirar_usando_linha_coluna(linha, coluna)
       testar_cima(linha - 1, coluna)
     end
-    if not @tabuleiro.acertou and not @tabuleiro.errou_o_tiro?
+    if !@tabuleiro.acertou && !@tabuleiro.errou_o_tiro?
       @direcoes_nao_testadas.delete('cima')
       atirar
     end
   end
 
   def testar_baixo(linha, coluna)
-    unless @tabuleiro.errou_o_tiro? or mudou_a_quantidade_de_navios_destruidos?
+    unless @tabuleiro.errou_o_tiro? || mudou_a_quantidade_de_navios_destruidos?
       @tabuleiro.atirar_usando_linha_coluna(linha, coluna)
       testar_baixo(linha + 1, coluna)
     end
-    if not @tabuleiro.acertou and not @tabuleiro.errou_o_tiro?
+    if !@tabuleiro.acertou && !@tabuleiro.errou_o_tiro?
       @direcoes_nao_testadas.delete('baixo')
       atirar
     end
