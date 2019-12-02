@@ -5,7 +5,7 @@ require './navio'
 
 class Tabuleiro
   attr_accessor :mostrar_navios
-  attr_reader :x0, :y0, :largura_imagem, :altura_imagem, :matriz
+  attr_reader :x0, :y0, :largura_imagem, :altura_imagem, :matriz, :navios, :acertou
 
   def initialize(posicao, numero)
     @x0 = posicao[0] + 46
@@ -62,8 +62,9 @@ class Tabuleiro
     mouse_x > @x0 && mouse_y > @y0 && mouse_x < @matriz.size * @largura_imagem + @x0 && mouse_y < @matriz.size * @altura_imagem + @y0
   end
 
-  def atirar(_window, mouse_x, mouse_y)
+  def atirar(mouse_x, mouse_y)
     @errou = true
+    @acertou = false
     if clicou_no_tabuleiro(mouse_x, mouse_y) && posicao_valida_para_atirar(mouse_x, mouse_y)
       linha = pegar_linha(mouse_y)
       coluna = pegar_coluna(mouse_x)
@@ -71,10 +72,10 @@ class Tabuleiro
         if navio.destruir_segmento(linha, coluna)
           @matriz[linha][coluna] = 3 if @matriz[linha][coluna] == 2
           @errou = false
-        else
-          @matriz[linha][coluna] = 1 if @matriz[linha][coluna].zero?
+          @acertou = true
+        elsif @matriz[linha][coluna].zero?
+          @matriz[linha][coluna] = 1
         end
-
         next unless navio.esta_destruido?
 
         navio.posicoes.each do |posicao|
@@ -85,7 +86,12 @@ class Tabuleiro
     else
       @errou = false
     end
-    testar_direita(_window, linha, coluna) if @machine
+  end
+
+  def atirar_usando_linha_coluna(linha, coluna)
+    x = coluna * @altura_imagem + @x0
+    y = linha * @largura_imagem + @y0
+    atirar(x, y)
   end
 
   def perdeu?
@@ -118,7 +124,7 @@ class Tabuleiro
     @matriz[linha][coluna].zero? || (@matriz[linha][coluna] == 2)
   end
 
-  def posicionar(_window, mouse_x, mouse_y, horizontal)
+  def posicionar(mouse_x, mouse_y, horizontal)
     if clicou_no_tabuleiro(mouse_x, mouse_y) && posicao_valida_para_posicionar(mouse_x, mouse_y, @navios[@navios_posicionados], horizontal)
       linha = pegar_linha(mouse_y)
       coluna = pegar_coluna(mouse_x)
@@ -175,45 +181,5 @@ class Tabuleiro
 
   def terminou_de_posicionar
     @navios_posicionados == @navios.size
-  end
-
-  def testar_esquerda(_window, linha, coluna)
-    while @errou == false
-      cordx = (coluna - 1) * @altura_imagem + @x0
-      puts cordx
-      cordy = linha * @altura_imagem + @y0
-      puts cordy
-      atirar(_window, cordx, cordy)
-    end
-  end
-
-  def testar_direita(_window, linha, coluna)
-    while @errou == false
-      cordx = (coluna + 1) * @altura_imagem + @x0
-      puts cordx
-      cordy = linha * @altura_imagem + @y0
-      puts cordy
-      atirar(_window, cordx, cordy)
-    end
-  end
-
-  def testar_cima(_window, linha, coluna)
-    while @errou == false
-      cordx = coluna * @altura_imagem + @x0
-      puts cordx
-      cordy = (linha + 1) * @altura_imagem + @y0
-      puts cordy
-      atirar(_window, cordx, cordy)
-    end
-  end
-
-  def testar_baixo(_window, linha, coluna)
-    while @errou == false
-      cordx = coluna * @altura_imagem + @x0
-      puts cordx
-      cordy = (linha - 1) * @altura_imagem + @y0
-      puts cordy
-      atirar(_window, cordx, cordy)
-    end
   end
 end

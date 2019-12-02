@@ -12,7 +12,7 @@ class Tutorial < Gosu::Window
     @tabuleiro2 = Tabuleiro.new([600, 100], '2')
     @intro = Gosu::Image.new('imagens/intro.png')
     @jogador_atual = 1
-    @machine = Machine.new
+    @machine = Machine.new(self, @tabuleiro2)
     @font = Gosu::Font.new 20
     @selecionar_modo = true
   end
@@ -36,21 +36,19 @@ class Tutorial < Gosu::Window
 
   def atirar_no_tabuleiro
     if @jogador_atual == 1
-      @tabuleiro2.atirar(self, mouse_x, mouse_y)
+      @tabuleiro2.atirar(mouse_x, mouse_y)
       if @tabuleiro2.errou_o_tiro?
         mudar_a_vez
       elsif @tabuleiro2.perdeu?
         vencedor
       end
     elsif @modo_de_jogo == 'X1'
-      @tabuleiro1.atirar(self, mouse_x, mouse_y)
+      @tabuleiro1.atirar(mouse_x, mouse_y)
       if @tabuleiro1.errou_o_tiro?
         mudar_a_vez
       elsif @tabuleiro1.perdeu?
         vencedor
       end
-    elsif @modo_de_jogo == 'maquina'
-      # atira automaticamente
     end
   end
 
@@ -89,10 +87,10 @@ class Tutorial < Gosu::Window
 
   def posicionar_navios
     if @jogador_atual == 1
-      @tabuleiro1.posicionar(self, mouse_x, mouse_y, @horizontal)
+      @tabuleiro1.posicionar(mouse_x, mouse_y, @horizontal)
       mudar_a_vez if @tabuleiro1.terminou_de_posicionar
     elsif @modo_de_jogo == 'X1'
-      @tabuleiro2.posicionar(self, mouse_x, mouse_y, @horizontal)
+      @tabuleiro2.posicionar(mouse_x, mouse_y, @horizontal)
       if @tabuleiro2.terminou_de_posicionar
         mudar_a_vez
         @atirar = true
@@ -106,11 +104,16 @@ class Tutorial < Gosu::Window
   end
 
   def posicionar_automaticamente
-    @machine.posicionar(self, @tabuleiro2)
+    @machine.posicionar
     @tabuleiro1.mostrar_navios = true
     @atirar = true
     @posicionar_navio = false
     mudar_a_vez
+    @machine = Machine.new(self, @tabuleiro1)
+  end
+
+  def atirar_automaticamente
+    @machine.atirar
   end
 
   def draw
@@ -126,6 +129,8 @@ class Tutorial < Gosu::Window
         if @modo_de_jogo == 'maquina' && @jogador_atual == 3
           posicionar_automaticamente
         end
+      elsif @atirar and @jogador_atual == 3
+        atirar_automaticamente
       end
       @font.draw_text(@msg, 200, 50, 0)
     else
