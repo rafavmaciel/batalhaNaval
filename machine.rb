@@ -81,13 +81,13 @@ class Machine
 
   def atualizar_prioridade_das_diredores(direcao)
     index = 0
-    if direcao == 'direita' and @direcoes_nao_testadas.include?('esquerda')
+    if (direcao == 'direita') && @direcoes_nao_testadas.include?('esquerda')
       index = @direcoes_nao_testadas.find_index('esquerda')
-    elsif direcao == 'esquerda' and @direcoes_nao_testadas.include?('direita')
+    elsif (direcao == 'esquerda') && @direcoes_nao_testadas.include?('direita')
       index = @direcoes_nao_testadas.find_index('direita')
-    elsif direcao == 'cima' and @direcoes_nao_testadas.include?('baixo')
+    elsif (direcao == 'cima') && @direcoes_nao_testadas.include?('baixo')
       index = @direcoes_nao_testadas.find_index('baixo')
-    elsif direcao == 'baixo' and @direcoes_nao_testadas.include?('cima')
+    elsif (direcao == 'baixo') && @direcoes_nao_testadas.include?('cima')
       index = @direcoes_nao_testadas.find_index('cima')
     end
     @direcoes_nao_testadas[0] = @direcoes_nao_testadas[index]

@@ -142,7 +142,6 @@ class Tutorial < Gosu::Window
       @intro.draw(0, 0, 0)
     end
   end
-
 end
 
 Tutorial.new.show
