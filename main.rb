@@ -6,7 +6,7 @@ require './machine'
 
 class Tutorial < Gosu::Window
   def initialize
-    super 1200, 800
+    super 1200, 800, true
     self.caption = 'Tutorial Game'
     @tabuleiro1 = Tabuleiro.new([100, 100], '1')
     @tabuleiro2 = Tabuleiro.new([600, 100], '2')
