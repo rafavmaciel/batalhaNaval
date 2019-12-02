@@ -5,7 +5,7 @@ class Machine
     @window = window
     @tabuleiro = tabuleiro
     @destruidos = 0
-    @direcoes_nao_testadas = %w[esquerda direita cima baixo]
+    @direcoes_nao_testadas = %w[cima esquerda baixo direita]
     @destruiu_ultimo_navio_que_acertou = true
   end
 
@@ -19,8 +19,8 @@ class Machine
 
   def atirar_aleatoriamente
     posicao = Array.new(2)
-    posicao[0] = rand(9)
-    posicao[1] = rand(9)
+    posicao[0] = rand(10)
+    posicao[1] = rand(10)
     @tabuleiro.atirar_usando_linha_coluna(posicao[0], posicao[1])
     posicao
   end
@@ -38,55 +38,30 @@ class Machine
 
     if @destruiu_ultimo_navio_que_acertou
       posicao = atirar_aleatoriamente
-      if !@tabuleiro.errou_o_tiro?
-        atirar
+      if !@tabuleiro.acertou && !@tabuleiro.jogada_invalida
+        return
       elsif @tabuleiro.acertou
         @linha = posicao[0]
         @coluna = posicao[1]
         @destruiu_ultimo_navio_que_acertou = false
         atirar
+      elsif @tabuleiro.jogada_invalida
+        atirar
       end
     else
-      if @direcoes_nao_testadas.include?('esquerda')
-        testar_esquerda(@linha, @coluna)
-        if mudou_a_quantidade_de_navios_destruidos?
-          atualizar_quantidade_de_destruidos
-          @destruiu_ultimo_navio_que_acertou = true
-          atualizar_direcoes
-          atirar
-        elsif @tabuleiro.errou_o_tiro?
-          @direcoes_nao_testadas.delete('esquerda')
-        end
-      elsif @direcoes_nao_testadas.include?('direita')
-        testar_direita(@linha, @coluna)
-        if mudou_a_quantidade_de_navios_destruidos?
-          atualizar_quantidade_de_destruidos
-          @destruiu_ultimo_navio_que_acertou = true
-          atualizar_direcoes
-          atirar
-        elsif @tabuleiro.errou_o_tiro?
-          @direcoes_nao_testadas.delete('direita')
-          end
-      elsif @direcoes_nao_testadas.include?('cima')
-        testar_cima(@linha, @coluna)
-        if mudou_a_quantidade_de_navios_destruidos?
-          atualizar_quantidade_de_destruidos
-          @destruiu_ultimo_navio_que_acertou = true
-          atualizar_direcoes
-          atirar
-        elsif @tabuleiro.errou_o_tiro?
-          @direcoes_nao_testadas.delete('cima')
-        end
-      elsif @direcoes_nao_testadas.include?('baixo')
-        testar_baixo(@linha, @coluna)
-        if mudou_a_quantidade_de_navios_destruidos?
-          atualizar_quantidade_de_destruidos
-          @destruiu_ultimo_navio_que_acertou = true
-          atualizar_direcoes
-          atirar
-        elsif @tabuleiro.errou_o_tiro?
-          @direcoes_nao_testadas.delete('baixo')
-        end
+      case @direcoes_nao_testadas[0]
+      when 'direita'
+        @tabuleiro.acertou = true
+        direita
+      when 'esquerda'
+        @tabuleiro.acertou = true
+        esquerda
+      when 'cima'
+        @tabuleiro.acertou = true
+        cima
+      when 'baixo'
+        @tabuleiro.acertou = true
+        baixo
       end
     end
   end
@@ -104,46 +79,99 @@ class Machine
     quantidade
   end
 
-  def testar_esquerda(linha, coluna)
-    unless @tabuleiro.errou_o_tiro? || mudou_a_quantidade_de_navios_destruidos?
-      @tabuleiro.atirar_usando_linha_coluna(linha, coluna)
-      testar_esquerda(linha, coluna - 1)
+  def atualizar_prioridade_das_diredores(direcao)
+    index = 0
+    if direcao == 'direita' and @direcoes_nao_testadas.include?('esquerda')
+      index = @direcoes_nao_testadas.find_index('esquerda')
+    elsif direcao == 'esquerda' and @direcoes_nao_testadas.include?('direita')
+      index = @direcoes_nao_testadas.find_index('direita')
+    elsif direcao == 'cima' and @direcoes_nao_testadas.include?('baixo')
+      index = @direcoes_nao_testadas.find_index('baixo')
+    elsif direcao == 'baixo' and @direcoes_nao_testadas.include?('cima')
+      index = @direcoes_nao_testadas.find_index('cima')
     end
-    if !@tabuleiro.acertou && !@tabuleiro.errou_o_tiro?
-      @direcoes_nao_testadas.delete('esquerda')
-      atirar
+    @direcoes_nao_testadas[0] = @direcoes_nao_testadas[index]
+    @direcoes_nao_testadas.delete(direcao)
+  end
+
+  def testar_esquerda(linha, coluna)
+    if @tabuleiro.acertou && !mudou_a_quantidade_de_navios_destruidos?
+      atualizar_prioridade_das_diredores('esquerda')
+      @tabuleiro.atirar_usando_linha_coluna(linha, coluna)
+      testar_esquerda(linha, coluna - 1) unless coluna.zero?
     end
   end
 
   def testar_direita(linha, coluna)
-    unless @tabuleiro.errou_o_tiro? || mudou_a_quantidade_de_navios_destruidos?
+    if @tabuleiro.acertou && !mudou_a_quantidade_de_navios_destruidos?
+      atualizar_prioridade_das_diredores('direita')
       @tabuleiro.atirar_usando_linha_coluna(linha, coluna)
-      testar_direita(linha, coluna + 1)
-    end
-    if !@tabuleiro.acertou && !@tabuleiro.errou_o_tiro?
-      @direcoes_nao_testadas.delete('direita')
-      atirar
+      testar_direita(linha, coluna + 1) unless coluna == 9
     end
   end
 
   def testar_cima(linha, coluna)
-    unless @tabuleiro.errou_o_tiro? || mudou_a_quantidade_de_navios_destruidos?
+    if @tabuleiro.acertou && !mudou_a_quantidade_de_navios_destruidos?
+      atualizar_prioridade_das_diredores('cima')
       @tabuleiro.atirar_usando_linha_coluna(linha, coluna)
-      testar_cima(linha - 1, coluna)
-    end
-    if !@tabuleiro.acertou && !@tabuleiro.errou_o_tiro?
-      @direcoes_nao_testadas.delete('cima')
-      atirar
+      testar_cima(linha - 1, coluna) unless linha.zero?
     end
   end
 
   def testar_baixo(linha, coluna)
-    unless @tabuleiro.errou_o_tiro? || mudou_a_quantidade_de_navios_destruidos?
+    if @tabuleiro.acertou && !mudou_a_quantidade_de_navios_destruidos?
+      atualizar_prioridade_das_diredores('baixo')
       @tabuleiro.atirar_usando_linha_coluna(linha, coluna)
-      testar_baixo(linha + 1, coluna)
+      testar_baixo(linha + 1, coluna) unless linha == 9
     end
-    if !@tabuleiro.acertou && !@tabuleiro.errou_o_tiro?
-      @direcoes_nao_testadas.delete('baixo')
+  end
+
+  private
+
+  def baixo
+    testar_baixo(@linha + 1, @coluna)
+    if mudou_a_quantidade_de_navios_destruidos?
+      atualizar_quantidade_de_destruidos
+      @destruiu_ultimo_navio_que_acertou = true
+      atualizar_direcoes
+      atirar
+    elsif @tabuleiro.jogada_invalida
+      atirar
+    end
+  end
+
+  def cima
+    testar_cima(@linha - 1, @coluna)
+    if mudou_a_quantidade_de_navios_destruidos?
+      atualizar_quantidade_de_destruidos
+      @destruiu_ultimo_navio_que_acertou = true
+      atualizar_direcoes
+      atirar
+    elsif @tabuleiro.jogada_invalida
+      atirar
+    end
+  end
+
+  def direita
+    testar_direita(@linha, @coluna + 1)
+    if mudou_a_quantidade_de_navios_destruidos?
+      atualizar_quantidade_de_destruidos
+      @destruiu_ultimo_navio_que_acertou = true
+      atualizar_direcoes
+      atirar
+    elsif @tabuleiro.jogada_invalida
+      atirar
+    end
+  end
+
+  def esquerda
+    testar_esquerda(@linha, @coluna - 1)
+    if mudou_a_quantidade_de_navios_destruidos?
+      atualizar_quantidade_de_destruidos
+      @destruiu_ultimo_navio_que_acertou = true
+      atualizar_direcoes
+      atirar
+    elsif @tabuleiro.jogada_invalida
       atirar
     end
   end

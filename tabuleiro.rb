@@ -4,8 +4,8 @@ require 'gosu'
 require './navio'
 
 class Tabuleiro
-  attr_accessor :mostrar_navios
-  attr_reader :x0, :y0, :largura_imagem, :altura_imagem, :matriz, :navios, :acertou
+  attr_accessor :mostrar_navios, :acertou
+  attr_reader :x0, :y0, :largura_imagem, :altura_imagem, :matriz, :navios, :jogada_invalida
 
   def initialize(posicao, numero)
     @x0 = posicao[0] + 46
@@ -24,7 +24,6 @@ class Tabuleiro
   end
 
   def show_para_posicionar(_window)
-    @imagem.draw(@posicao[0], @posicao[1], 0)
     @navios.each do |navio|
       desenhe_navio(navio) if navio.posicionado
     end
@@ -49,29 +48,25 @@ class Tabuleiro
     end
   end
 
-  def errou_o_tiro?
-    @errou
-  end
-
   def show_mapa(window)
     show_para_atirar(window)
     show_para_posicionar(window) if @mostrar_navios
   end
 
   def clicou_no_tabuleiro(mouse_x, mouse_y)
-    mouse_x > @x0 && mouse_y > @y0 && mouse_x < @matriz.size * @largura_imagem + @x0 && mouse_y < @matriz.size * @altura_imagem + @y0
+    mouse_x >= @x0 && mouse_y >= @y0 && mouse_x < @matriz.size * @largura_imagem + @x0 && mouse_y < @matriz.size * @altura_imagem + @y0
   end
 
   def atirar(mouse_x, mouse_y)
-    @errou = true
     @acertou = false
+    @jogada_invalida = true
     if clicou_no_tabuleiro(mouse_x, mouse_y) && posicao_valida_para_atirar(mouse_x, mouse_y)
+      @jogada_invalida = false
       linha = pegar_linha(mouse_y)
       coluna = pegar_coluna(mouse_x)
       @navios.each do |navio|
         if navio.destruir_segmento(linha, coluna)
           @matriz[linha][coluna] = 3 if @matriz[linha][coluna] == 2
-          @errou = false
           @acertou = true
         elsif @matriz[linha][coluna].zero?
           @matriz[linha][coluna] = 1
@@ -83,8 +78,6 @@ class Tabuleiro
         end
         perdeu?
       end
-    else
-      @errou = false
     end
   end
 

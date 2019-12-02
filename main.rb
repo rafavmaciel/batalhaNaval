@@ -6,7 +6,7 @@ require './machine'
 
 class Tutorial < Gosu::Window
   def initialize
-    super 1200, 800, true
+    super 1200, 800
     self.caption = 'Tutorial Game'
     @tabuleiro1 = Tabuleiro.new([100, 100], '1')
     @tabuleiro2 = Tabuleiro.new([600, 100], '2')
@@ -37,14 +37,14 @@ class Tutorial < Gosu::Window
   def atirar_no_tabuleiro
     if @jogador_atual == 1
       @tabuleiro2.atirar(mouse_x, mouse_y)
-      if @tabuleiro2.errou_o_tiro?
+      if !@tabuleiro2.acertou && !@tabuleiro2.jogada_invalida
         mudar_a_vez
       elsif @tabuleiro2.perdeu?
         vencedor
       end
-    elsif @modo_de_jogo == 'X1'
+    elsif @modo_de_jogo == 'X1' && @jogador_atual == 2
       @tabuleiro1.atirar(mouse_x, mouse_y)
-      if @tabuleiro1.errou_o_tiro?
+      if !@tabuleiro1.acertou && !@tabuleiro1.jogada_invalida
         mudar_a_vez
       elsif @tabuleiro1.perdeu?
         vencedor
@@ -114,6 +114,11 @@ class Tutorial < Gosu::Window
 
   def atirar_automaticamente
     @machine.atirar
+    if @tabuleiro1.perdeu?
+      vencedor
+    else
+      mudar_a_vez
+    end
   end
 
   def draw
@@ -129,7 +134,7 @@ class Tutorial < Gosu::Window
         if @modo_de_jogo == 'maquina' && @jogador_atual == 3
           posicionar_automaticamente
         end
-      elsif @atirar && (@jogador_atual == 3)
+      elsif @atirar && @jogador_atual == 3
         atirar_automaticamente
       end
       @font.draw_text(@msg, 200, 50, 0)
@@ -137,6 +142,7 @@ class Tutorial < Gosu::Window
       @intro.draw(0, 0, 0)
     end
   end
+
 end
 
 Tutorial.new.show
